@@ -1,0 +1,143 @@
+// Importing express module
+const express = require("express");
+const db = require("../db");
+const router = express.Router();
+const { body, validationResult } = require("express-validator");
+
+// Add profile : Adding the customer
+router.post(
+  "/profile",
+  [
+    body("c_name", "Invalid Customer Name").notEmpty().isLength({ min: 5 }),
+    body("c_add", "Invalid Customer address").notEmpty().isLength({ min: 10 }),
+    body("c_mob", "Invalid Mobile number")
+      .notEmpty()
+      .isLength({ min: 10, max: 10 }),
+  ],
+  (req, res) => {
+    const { c_name: name, c_add: address, c_dob: dob, c_mob: mob } = req.body;
+
+    let status = 0;
+    // if there is any errror in req body ie that if parameters are not validated response with bad request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorsArray = errors.array();
+      let msg = [];
+      for (let i of errorsArray) {
+        msg.push(i.msg);
+      }
+      return res.status(400).json({ status, msg });
+    }
+    try {
+      db.query(
+        `insert into customer_master (c_name,c_add,c_dob,c_mob) values ("${name}","${address}",${dob},"${mob}")`,
+        (err, row, fields) => {
+          if (!err) {
+            status = 1;
+            return res.json({
+              status: status,
+              msg: "Profile added successfully",
+            });
+          } else {
+            return res.status(400).json({ status, err });
+          }
+        }
+      );
+    } catch (error) {
+      res.status(500).json({
+        msg: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  }
+);
+// View profile : View the customer's profile
+router.get(
+  "/profile/:id",
+
+  (req, res) => {
+    let status = 0;
+    try {
+      db.query(
+        `select * from customer_master where c_id = ${req.params.id} `,
+        (err, row, fields) => {
+          if (!err) {
+            if (row.length === 0) {
+              return res.status(404).json({
+                status: status,
+                msg: "User not found",
+              });
+            }
+            status = 1;
+            return res.json({
+              status: status,
+              msg: row,
+            });
+          } else {
+            return res.status(400).json({ status, err });
+          }
+        }
+      );
+    } catch (error) {
+      res.status(500).json({
+        msg: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  }
+);
+// Update profile : Update the customer's profile
+router.put(
+  "/profile/:id",
+  [
+    body("c_name", "Invalid Customer Name").notEmpty().isLength({ min: 5 }),
+    body("c_add", "Invalid Customer address").notEmpty().isLength({ min: 10 }),
+    body("c_mob", "Invalid Mobile number")
+      .notEmpty()
+      .isLength({ min: 10, max: 10 }),
+  ],
+  (req, res) => {
+    let status = 0;
+    const { c_name: name, c_add: address, c_dob: dob, c_mob: mob } = req.body;
+
+    // if there is any errror in req body ie that if parameters are not validated response with bad request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorsArray = errors.array();
+      let msg = [];
+      for (let i of errorsArray) {
+        msg.push(i.msg);
+      }
+      return res.status(400).json({ status, msg });
+    }
+    try {
+      db.query(
+        `UPDATE customer_master SET c_name="${name}" , c_dob="${dob}" , c_mob=${mob} , c_add="${address}" WHERE c_id = ${req.params.id} `,
+        (err, row, fields) => {
+          if (!err) {
+            if (row.affectedRows === 0) {
+              return res.status(404).json({
+                status: status,
+                msg: "Update didn't happen!",
+                reason: "Profile with this id doesn't exist",
+              });
+            }
+            status = 1;
+            return res.json({
+              status: status,
+              msg: row,
+            });
+          } else {
+            return res.status(400).json({ status, err });
+          }
+        }
+      );
+    } catch (error) {
+      res.status(500).json({
+        msg: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  }
+);
+module.exports = router;
