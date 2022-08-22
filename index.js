@@ -12,8 +12,33 @@ db.connect((err) => {
 let app = express();
 
 app.use(express.json());
-app.get("/", function (request, response) {
-  response.send("Hello World!");
+app.get("/", function (req, res) {
+  let status = 0;
+
+  try {
+    db.query(
+      `select * from customer_master where c_id=1`,
+      (err, row, fields) => {
+        if (!err) {
+          if (row.length === 0) {
+            return res.status(404).json({
+              status: status,
+              msg: "Customer record not found",
+            });
+          }
+          status = 1;
+          return res.send(`Hello ! ${row[0].c_name}`);
+        } else {
+          return res.status(400).json({ status, err });
+        }
+      }
+    );
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal Server Error",
+      error: error.message,
+    });
+  }
 });
 app.listen(port, function () {
   console.log("Started application on port %d", port);
