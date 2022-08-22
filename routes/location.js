@@ -7,13 +7,16 @@ const { body, validationResult } = require("express-validator");
 router.post(
   "/",
   [
-    body("t_id", "Invalid tree id").notEmpty(),
-    body("l_id", "Invalid location id").notEmpty(),
-    body("c_id", "Invalid customer id").notEmpty(),
-    body("o_id", "Invalid occasion id").notEmpty(),
+    body("l_address", "Invalid  address").notEmpty().isLength({ min: 10 }),
+    body("l_size", "Invalid size").notEmpty(),
+    body("l_longitude", "Invalid longitude").notEmpty(),
+    body("l_latitude", "Invalid latitude").notEmpty(),
+    body("l_name", "Invalid name").notEmpty(),
+    body("l_ownership", "Invalid ownership").notEmpty(),
   ],
   (req, res) => {
-    const { t_id, l_id, c_id, o_id } = req.body;
+    const { l_address, l_size, l_longitude, l_latitude, l_name, l_ownership } =
+      req.body;
 
     let status = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
@@ -29,13 +32,13 @@ router.post(
     try {
       // INSERT INTO `payment_master` (`p_id`, `p_amount`, `tr_id`, `p_status`, `p_type`, `response`, `time`) VALUES (NULL, '1000', '1', '1', '1', 'This is response', current_timestamp());
       db.query(
-        `insert into tree_transaction (t_id,o_id,l_id,c_id) values (${t_id},${o_id},${l_id},${c_id})`,
+        `insert into location_master (l_address,l_size,l_longitude,l_latitude,l_name,l_ownership) values ("${l_address}","${l_size}","${l_longitude}","${l_latitude}","${l_name}","${l_ownership}")`,
         (err, row, fields) => {
           if (!err) {
             status = 1;
             return res.json({
               status: status,
-              msg: "Transaction record added",
+              msg: "Location record added",
             });
           } else {
             return res.status(400).json({ status, err });
@@ -56,16 +59,15 @@ router.get(
 
   (req, res) => {
     let status = 0;
-
     try {
       db.query(
-        `select * from tree_transaction where tr_id=${req.params.id}`,
+        `select * from location_master where l_id=${req.params.id}`,
         (err, row, fields) => {
           if (!err) {
             if (row.length === 0) {
               return res.status(404).json({
                 status: status,
-                msg: "Transaction record not found",
+                msg: "Location record not found",
               });
             }
             status = 1;
@@ -90,14 +92,17 @@ router.get(
 router.put(
   "/:id",
   [
-    body("t_id", "Invalid tree id").notEmpty(),
-    body("l_id", "Invalid location id").notEmpty(),
-    body("c_id", "Invalid customer id").notEmpty(),
-    body("o_id", "Invalid occasion id").notEmpty(),
+    body("l_address", "Invalid  address").notEmpty().isLength({ min: 10 }),
+    body("l_size", "Invalid size").notEmpty(),
+    body("l_longitude", "Invalid longitude").notEmpty(),
+    body("l_latitude", "Invalid latitude").notEmpty(),
+    body("l_name", "Invalid name").notEmpty(),
+    body("l_ownership", "Invalid ownership").notEmpty(),
   ],
   (req, res) => {
     let status = 0;
-    const { t_id, l_id, c_id, o_id } = req.body;
+    const { l_address, l_size, l_longitude, l_latitude, l_name, l_ownership } =
+      req.body;
 
     // if there is any errror in req body ie that if parameters are not validated response with bad request
     const errors = validationResult(req);
@@ -111,14 +116,14 @@ router.put(
     }
     try {
       db.query(
-        `UPDATE tree_transaction SET t_id="${t_id}" , c_id=${c_id} ,o_id=${o_id},l_id=${l_id} WHERE tr_id = ${req.params.id} `,
+        `UPDATE location_master SET l_address="${l_address}" , l_size="${l_size}",l_latitude="${l_latitude}",l_longitude="${l_longitude}",l_name="${l_name}",l_ownership="${l_ownership}" WHERE l_id = ${req.params.id} `,
         (err, row, fields) => {
           if (!err) {
             if (row.affectedRows === 0) {
               return res.status(404).json({
                 status: status,
                 msg: "Update didn't happen!",
-                reason: "Transaction with this id doesn't exist",
+                reason: "Location with this id doesn't exist",
               });
             }
             status = 1;

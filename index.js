@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("./db");
 
-const port = 10000;
+const port = process.env.port || 5000;
 // Database connection
 db.connect((err) => {
   if (err) {
@@ -24,3 +24,4 @@ app.use("/api/customer", require("./routes/profile"));
 app.use("/api/payment", require("./routes/payment"));
 app.use("/api/tree", require("./routes/tree"));
 app.use("/api/tree/transaction", require("./routes/tree_transaction"));
+app.use("/api/location", require("./routes/location"));

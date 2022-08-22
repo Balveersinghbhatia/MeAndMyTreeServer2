@@ -4,7 +4,8 @@
   "description": "this is an app which offers users to plant tree on some occasions handled by teams",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "balveerSingh",
   "license": "ISC",
