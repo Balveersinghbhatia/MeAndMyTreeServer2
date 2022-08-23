@@ -50,3 +50,7 @@ app.use("/api/payment", require("./routes/payment"));
 app.use("/api/tree", require("./routes/tree"));
 app.use("/api/tree/transaction", require("./routes/tree_transaction"));
 app.use("/api/location", require("./routes/location"));
+
+setInterval(function () {
+  db.query("SELECT 1");
+}, 5000);
