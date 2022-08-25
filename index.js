@@ -1,10 +1,13 @@
+const cors = require("cors");
 const express = require("express");
 const db = require("./db");
 const port = process.env.PORT || 5000;
 
-let app = express();
+const app = express();
 
+app.use(cors());
 app.use(express.json());
+
 app.get("/", function (req, res) {
   // Database connection
   db.connect((err) => {
