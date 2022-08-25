@@ -2,17 +2,17 @@ const express = require("express");
 const db = require("./db");
 
 const port = process.env.PORT || 5000;
-// Database connection
-db.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else console.log("Connected Successfully");
-});
 
 let app = express();
 
 app.use(express.json());
 app.get("/", function (req, res) {
+  // Database connection
+  db.connect((err) => {
+    if (err) {
+      console.log(err);
+    } else console.log("Connected Successfully");
+  });
   let status = 0;
 
   try {
