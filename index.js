@@ -6,11 +6,7 @@ const jwt = require("jsonwebtoken");
 const app = express();
 
 app.use(cors());
-app.use(
-  express.json({
-    type: ["application/json", "text/plain"],
-  })
-);
+app.use(express.json());
 
 app.get("/", function (req, res) {
   // Database connection
