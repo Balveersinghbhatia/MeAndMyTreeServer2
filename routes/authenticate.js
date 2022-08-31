@@ -28,7 +28,7 @@ router.post(
       for (let i of errorsArray) {
         msg.push(i.msg);
       }
-      return res.success(400).json({ success, msg });
+      return res.status(400).json({ success, msg });
     }
     try {
       // Check if user exists
@@ -87,7 +87,7 @@ router.post(
 router.post(
   "/login",
   [
-    body("username", "Bhai mere sahi se user name dal").isLength({
+    body("username", "Bhai mere sahi se user name dal pls").isLength({
       min: 5,
     }),
     body("password", "Bhai mere sahi se password dal").isLength({
