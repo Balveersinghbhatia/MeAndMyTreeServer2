@@ -18,6 +18,8 @@ router.post(
 
   (req, res) => {
     const { username, password, email } = req.body;
+    console.log("Body is");
+    console.log(req.body);
 
     let success = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
