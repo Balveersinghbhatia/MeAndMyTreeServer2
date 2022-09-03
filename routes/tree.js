@@ -49,41 +49,44 @@ router.post(
   }
 );
 // Get request: Get Tree Record
-router.get(
-  "/:id",
+// There are two variants : id provided or not
+// IF provided it will return the data of tree with taht particular id
+// If not then it will return the data of all the trees
+router.get("/:id", (req, res) => {
+  let status = 0;
 
-  (req, res) => {
-    let status = 0;
-
-    try {
-      db.query(
-        `select * from tree_master where t_id=${req.params.id}`,
-        (err, row, fields) => {
-          if (!err) {
-            if (row.length === 0) {
-              return res.status(404).json({
-                status: status,
-                msg: "Tree record not found",
-              });
-            }
-            status = 1;
-            return res.json({
-              status: status,
-              details: row,
-            });
-          } else {
-            return res.status(400).json({ status, err });
-          }
-        }
-      );
-    } catch (error) {
-      res.status(500).json({
-        msg: "Internal Server Error",
-        error: error.message,
-      });
+  try {
+    let tree_id = req.params.id;
+    let query = "";
+    if (tree_id === "0") {
+      query = `select * from tree_master`;
+    } else {
+      query = `select * from tree_master where t_id=${tree_id}`;
     }
+    db.query(query, (err, row, fields) => {
+      if (!err) {
+        if (row.length === 0) {
+          return res.status(404).json({
+            status: status,
+            msg: "Tree record not found",
+          });
+        }
+        status = 1;
+        return res.json({
+          status: status,
+          details: row,
+        });
+      } else {
+        return res.status(400).json({ status, err });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal Server Error",
+      error: error.message,
+    });
   }
-);
+});
 // Put request: Update Tree record
 router.put(
   "/:id",

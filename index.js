@@ -2,11 +2,12 @@ const cors = require("cors");
 const express = require("express");
 const db = require("./db");
 const port = process.env.PORT || 5000;
-const jwt = require("jsonwebtoken");
 const app = express();
+const bodyParser = require("body-parser");
 
 app.use(cors());
-app.use(express.json());
+// app.use(express.json());
+app.use(bodyParser.json({ type: "application/*+json" }));
 
 app.get("/", function (req, res) {
   // Database connection
