@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Login</title>
+</head>
+
+<body>
+	<button id="btn">Login</button>
+	<script>
+		let dosomething = async () => {
+			let options = {
+				method: "POST",
+				body: JSON.stringify({
+					username: "rudri",
+					password: "balveer123",
+					email: "balveerbhatiakk@gmail.com"
+				})
+			}
+			let x = await fetch('http://localhost:5000/api/login', options)
+		}
+		let btn = document.getElementById('btn')
+		btn.addEventListener("click", dosomething)
+	</script>
+</body>
+
+
+</html>

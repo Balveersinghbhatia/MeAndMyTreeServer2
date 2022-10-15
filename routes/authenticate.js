@@ -1,11 +1,12 @@
 // Importing express module
 const express = require("express");
 const db = require("../db");
+const session = require("express-session");
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const checkAuthentication = require("../middleware/checkSession");
 
 // Login  : With username and password
 router.post(
@@ -39,21 +40,14 @@ router.post(
         (err, row) => {
           if (!err) {
             if (row.length === 0) {
+              // Length zero means no entry with usename,means user doesn't exist before
               // Creating salt for bcrypt
               const salt = bcrypt.genSaltSync(10);
               // Creating hashed password with salt
               const secPas = bcrypt.hashSync(password, salt);
-              //creating the token
-              const authData = {
-                user: {
-                  username,
-                },
-              };
-              const accessToken = jwt.sign(
-                authData,
-                process.env.ACCESS_TOKEN_SECRET
-              );
-              // now inserting the username, password and email into the databse
+
+              //  inserting the username, password and email into the databse
+              // IE storing/creating the user
 
               db.query(
                 `insert into login_master (username,password,email) values ("${username}","${password}","${email}")`,
@@ -63,13 +57,13 @@ router.post(
                     return res.json({
                       success: success,
                       msg: "User created successfully",
-                      accessToken,
                     });
                   } else {
                     return res.success(400).json({ success, err });
                   }
                 }
               );
+              // Storing the session
             } else {
               res.json({ success, msg: "This username already exists" });
             }
@@ -97,6 +91,7 @@ router.post(
     }),
   ],
   async (req, res) => {
+    console.log(req.body);
     let success = false;
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
@@ -114,7 +109,8 @@ router.post(
         async (err, row) => {
           if (!err) {
             if (row.length === 0) {
-              res.json({ success, msg: "User not found" });
+              // length zero means user doesn't exist so it has to first register
+              res.json({ success, msg: "User not found", notfound: true });
             } else {
               user = row[0];
               // console.log(user);/
@@ -131,20 +127,10 @@ router.post(
                   error: "Please login with correct crendentials -p",
                 });
               } else {
-                const authData = {
-                  user: {
-                    username,
-                  },
-                };
-                // Creating token
-                // It takes two parameters, data with which we will authenticate and our signature
-                const authToken = jwt.sign(
-                  authData,
-                  process.env.ACCESS_TOKEN_SECRET
-                );
+                req.session.isAuth = true;
                 // res.send(user);
                 success = true;
-                res.json({ success, authToken });
+                res.json({ success, msg: "User Logged In" });
               }
             }
           } else {
@@ -191,5 +177,18 @@ router.post(
     }
   }
 );
-
+router.get("/logout", checkAuthentication, (req, res) => {
+  try {
+    req.session.destroy();
+    res.send("User logged out successfully!");
+  } catch (error) {
+    // if some error occures in above code then do this.
+    console.error(error.message);
+    res.status(500).json({
+      success,
+      msg: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
 module.exports = router;

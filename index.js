@@ -1,22 +1,35 @@
 const cors = require("cors");
 const express = require("express");
+const session = require("express-session");
 const db = require("./db");
 const port = process.env.PORT || 5000;
 const app = express();
 const bodyParser = require("body-parser");
+const MySQLStore = require("express-mysql-session")(session);
 
 app.use(cors());
-// app.use(express.json());
+app.use(express.json());
 app.use(bodyParser.json({ type: "application/*+json" }));
+// To save the session in database
+const sessionStore = new MySQLStore(
+  {
+    expiration: 10800000,
+    createDatabaseTable: true,
+  },
+  db
+);
+// To create sessions
+app.use(
+  session({
+    secret: "this is the secret",
+    saveUninitialized: false,
+    resave: false,
+    store: sessionStore,
+  })
+);
 
 app.get("/", function (req, res) {
-  // Database connection
-  db.connect((err) => {
-    if (err) {
-      console.log(err);
-    } else console.log("Connected Successfully");
-  });
-  let status = 0;
+  // req.session.isAuth = true;
 
   try {
     db.query(
@@ -30,7 +43,7 @@ app.get("/", function (req, res) {
             });
           }
           status = 1;
-          return res.send(`Hello ! ${row[0].c_name}`);
+          return res.send(`Hello! ${row[0].c_name}`);
         } else {
           return res.status(400).json({ status, err });
         }
@@ -43,6 +56,7 @@ app.get("/", function (req, res) {
     });
   }
 });
+
 app.listen(port, function () {
   console.log("Started application on port %d", port);
 });
@@ -51,6 +65,6 @@ app.listen(port, function () {
 app.use("/api/customer", require("./routes/profile"));
 app.use("/api/payment", require("./routes/payment"));
 app.use("/api/tree", require("./routes/tree"));
-app.use("/api/tree/transaction", require("./routes/tree_transaction"));
+app.use("/api/transaction", require("./routes/transaction"));
 app.use("/api/location", require("./routes/location"));
 app.use("/api/", require("./routes/authenticate"));

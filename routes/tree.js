@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../db");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
+const checkAuthentication = require("../middleware/checkSession");
 
 // Post request: Add Tree Record
 router.post(
@@ -10,10 +11,11 @@ router.post(
     body("t_type", "Invalid  type").notEmpty().isLength({ min: 4 }),
     body("t_price", "Invalid price").notEmpty(),
   ],
+  checkAuthentication,
   (req, res) => {
     const { t_type: type, t_price: price } = req.body;
 
-    let status = 0;
+    let success = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -22,7 +24,7 @@ router.post(
       for (let i of errorsArray) {
         msg.push(i.msg);
       }
-      return res.status(400).json({ status, msg });
+      return res.status(400).json({ success, msg });
     }
     try {
       // INSERT INTO `payment_master` (`p_id`, `p_amount`, `tr_id`, `p_status`, `p_type`, `response`, `time`) VALUES (NULL, '1000', '1', '1', '1', 'This is response', current_timestamp());
@@ -30,30 +32,29 @@ router.post(
         `insert into tree_master (t_type,t_price) values ("${type}",${price})`,
         (err, row, fields) => {
           if (!err) {
-            status = 1;
+            success = 1;
             return res.json({
-              status: status,
+              success: success,
               msg: "Tree record added",
             });
           } else {
-            return res.status(400).json({ status, err });
+            return res.status(400).json({ success, err });
           }
         }
       );
     } catch (error) {
-      res.status(500).json({
-        msg: "Internal Server Error",
-        error: error.message,
-      });
+      res
+        .status(500)
+        .json({ success, msg: "Internal Server Error", error: error.message });
     }
   }
 );
 // Get request: Get Tree Record
 // There are two variants : id provided or not
-// IF provided it will return the data of tree with taht particular id
+// IF provided it will return the data of tree with that particular id
 // If not then it will return the data of all the trees
-router.get("/:id", (req, res) => {
-  let status = 0;
+router.get("/:id", checkAuthentication, (req, res) => {
+  let success = 0;
 
   try {
     let tree_id = req.params.id;
@@ -67,17 +68,17 @@ router.get("/:id", (req, res) => {
       if (!err) {
         if (row.length === 0) {
           return res.status(404).json({
-            status: status,
+            success: success,
             msg: "Tree record not found",
           });
         }
-        status = 1;
+        success = 1;
         return res.json({
-          status: status,
+          success: success,
           details: row,
         });
       } else {
-        return res.status(400).json({ status, err });
+        return res.status(400).json({ success, err });
       }
     });
   } catch (error) {
@@ -94,8 +95,9 @@ router.put(
     body("t_type", "Invalid  type").notEmpty().isLength({ min: 4 }),
     body("t_price", "Invalid price").notEmpty(),
   ],
+  checkAuthentication,
   (req, res) => {
-    let status = 0;
+    let success = 0;
     const { t_type: type, t_price: price } = req.body;
 
     // if there is any errror in req body ie that if parameters are not validated response with bad request
@@ -106,7 +108,7 @@ router.put(
       for (let i of errorsArray) {
         msg.push(i.msg);
       }
-      return res.status(400).json({ status, msg });
+      return res.status(400).json({ success, msg });
     }
     try {
       db.query(
@@ -115,23 +117,24 @@ router.put(
           if (!err) {
             if (row.affectedRows === 0) {
               return res.status(404).json({
-                status: status,
+                success,
                 msg: "Update didn't happen!",
                 reason: "Tree with this id doesn't exist",
               });
             }
-            status = 1;
+            success = 1;
             return res.json({
-              status: status,
+              success,
               msg: row,
             });
           } else {
-            return res.status(400).json({ status, err });
+            return res.status(400).json({ success, err });
           }
         }
       );
     } catch (error) {
       res.status(500).json({
+        success,
         msg: "Internal Server Error",
         error: error.message,
       });

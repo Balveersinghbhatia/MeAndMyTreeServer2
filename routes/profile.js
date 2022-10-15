@@ -2,7 +2,8 @@
 const express = require("express");
 const db = require("../db");
 const router = express.Router();
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, check } = require("express-validator");
+const checkAuthentication = require("../middleware/checkSession");
 
 // Add profile : Adding the customer
 router.post(
@@ -14,10 +15,11 @@ router.post(
       .notEmpty()
       .isLength({ min: 10, max: 10 }),
   ],
+  checkAuthentication,
   (req, res) => {
     const { c_name: name, c_add: address, c_dob: dob, c_mob: mob } = req.body;
 
-    let status = 0;
+    let success = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -26,25 +28,26 @@ router.post(
       for (let i of errorsArray) {
         msg.push(i.msg);
       }
-      return res.status(400).json({ status, msg });
+      return res.status(400).json({ success, msg });
     }
     try {
       db.query(
         `insert into customer_master (c_name,c_add,c_dob,c_mob) values ("${name}","${address}",${dob},"${mob}")`,
         (err, row, fields) => {
           if (!err) {
-            status = 1;
+            success = 1;
             return res.json({
-              status: status,
+              success,
               msg: "Profile added successfully",
             });
           } else {
-            return res.status(400).json({ status, err });
+            return res.status(400).json({ success, err });
           }
         }
       );
     } catch (error) {
       res.status(500).json({
+        success,
         msg: "Internal Server Error",
         error: error.message,
       });
@@ -52,43 +55,41 @@ router.post(
   }
 );
 // View profile : View the customer's profile
-router.get(
-  "/profile/:id",
-
-  (req, res) => {
-    let status = 0;
-    try {
-      db.query(
-        `select * from customer_master where c_id = ${req.params.id} `,
-        (err, row, fields) => {
-          if (!err) {
-            if (row.length === 0) {
-              return res.status(404).json({
-                status: status,
-                msg: "User not found",
-              });
-            }
-            status = 1;
-            return res.json({
-              status: status,
-              msg: row,
+router.get("/profile/:id", checkAuthentication, (req, res) => {
+  let success = 0;
+  try {
+    db.query(
+      `select * from customer_master where c_id = ${req.params.id} `,
+      (err, row, fields) => {
+        if (!err) {
+          if (row.length === 0) {
+            return res.status(404).json({
+              success,
+              msg: "User not found",
             });
-          } else {
-            return res.status(400).json({ status, err });
           }
+          success = 1;
+          return res.json({
+            success,
+            msg: row,
+          });
+        } else {
+          return res.status(400).json({ success, err });
         }
-      );
-    } catch (error) {
-      res.status(500).json({
-        msg: "Internal Server Error",
-        error: error.message,
-      });
-    }
+      }
+    );
+  } catch (error) {
+    res.status(500).json({
+      success,
+      msg: "Internal Server Error",
+      error: error.message,
+    });
   }
-);
+});
 // Update profile : Update the customer's profile
 router.put(
   "/profile/:id",
+  checkAuthentication,
   [
     body("c_name", "Invalid Customer Name").notEmpty().isLength({ min: 5 }),
     body("c_add", "Invalid Customer address").notEmpty().isLength({ min: 10 }),
@@ -97,7 +98,7 @@ router.put(
       .isLength({ min: 10, max: 10 }),
   ],
   (req, res) => {
-    let status = 0;
+    let success = 0;
     const { c_name: name, c_add: address, c_dob: dob, c_mob: mob } = req.body;
 
     // if there is any errror in req body ie that if parameters are not validated response with bad request
@@ -108,7 +109,7 @@ router.put(
       for (let i of errorsArray) {
         msg.push(i.msg);
       }
-      return res.status(400).json({ status, msg });
+      return res.status(400).json({ success, msg });
     }
     try {
       db.query(
@@ -117,23 +118,24 @@ router.put(
           if (!err) {
             if (row.affectedRows === 0) {
               return res.status(404).json({
-                status: status,
+                success,
                 msg: "Update didn't happen!",
                 reason: "Profile with this id doesn't exist",
               });
             }
-            status = 1;
+            success = 1;
             return res.json({
-              status: status,
+              success,
               msg: row,
             });
           } else {
-            return res.status(400).json({ status, err });
+            return res.status(400).json({ success, err });
           }
         }
       );
     } catch (error) {
       res.status(500).json({
+        success,
         msg: "Internal Server Error",
         error: error.message,
       });
