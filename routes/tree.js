@@ -11,7 +11,7 @@ router.post(
     body("t_type", "Invalid  type").notEmpty().isLength({ min: 4 }),
     body("t_price", "Invalid price").notEmpty(),
   ],
-
+  checkAuthentication,
   (req, res) => {
     const { t_type: type, t_price: price } = req.body;
     console.log(req.body);

@@ -17,10 +17,16 @@
 				body: JSON.stringify({
 					username: "rudri",
 					password: "balveer123",
-					email: "balveerbhatiakk@gmail.com"
-				})
+				}),
+				headers: {
+					"Content-Type": "application/json"
+				}
+
 			}
-			let x = await fetch('http://localhost:5000/api/login', options)
+			// let x = await fetch('http://localhost:5000/api/login', options)
+			fetch('http://localhost:5000/api/login', options)
+				.then((response) => response.json())
+				.then((data) => console.log(data, typeof data));
 		}
 		let btn = document.getElementById('btn')
 		btn.addEventListener("click", dosomething)

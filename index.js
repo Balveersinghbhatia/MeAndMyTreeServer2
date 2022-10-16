@@ -1,15 +1,16 @@
 const cors = require("cors");
 const express = require("express");
+var bodyParser = require("body-parser");
 const session = require("express-session");
 const db = require("./db");
 const port = process.env.PORT || 5000;
 const app = express();
-const bodyParser = require("body-parser");
 const MySQLStore = require("express-mysql-session")(session);
 
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json({ type: "application/*+json" }));
+
+// app.use(express.urlencoded());
 // To save the session in database
 const sessionStore = new MySQLStore(
   {

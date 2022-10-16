@@ -92,6 +92,7 @@ router.post(
   ],
   async (req, res) => {
     console.log(req.body);
+
     let success = false;
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
@@ -114,7 +115,7 @@ router.post(
             } else {
               user = row[0];
               // console.log(user);/
-              console.log(password);
+              // console.log(password);
               // if user exists, check for password match
               const passwordCompare = await bcrypt.compare(
                 password,
