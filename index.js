@@ -1,7 +1,8 @@
 const cors = require("cors");
 const express = require("express");
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const db = require("./db");
 const port = process.env.PORT || 5000;
 const app = express();
@@ -9,7 +10,7 @@ const MySQLStore = require("express-mysql-session")(session);
 
 app.use(cors());
 app.use(express.json());
-
+app.use(cookieParser());
 // app.use(express.urlencoded());
 // To save the session in database
 const sessionStore = new MySQLStore(
@@ -20,10 +21,12 @@ const sessionStore = new MySQLStore(
   db
 );
 // To create sessions
+const oneDay = 1000 * 60 * 60 * 24;
 app.use(
   session({
     secret: "this is the secret",
     saveUninitialized: false,
+    cookie: { maxAge: oneDay },
     resave: false,
     store: sessionStore,
   })
@@ -39,19 +42,20 @@ app.get("/", function (req, res) {
         if (!err) {
           if (row.length === 0) {
             return res.status(404).json({
-              status: status,
+              sucess,
               msg: "Customer record not found",
             });
           }
-          status = 1;
+          success = 1;
           return res.send(`Hello! ${row[0].c_name}`);
         } else {
-          return res.status(400).json({ status, err });
+          return res.status(400).json({ success, err });
         }
       }
     );
   } catch (error) {
     res.status(500).json({
+      success,
       msg: "Internal Server Error",
       error: error.message,
     });
@@ -68,4 +72,7 @@ app.use("/api/payment", require("./routes/payment"));
 app.use("/api/tree", require("./routes/tree"));
 app.use("/api/transaction", require("./routes/transaction"));
 app.use("/api/location", require("./routes/location"));
+app.use("/api/review", require("./routes/review"));
 app.use("/api/", require("./routes/authenticate"));
+app.use("/api/", require("./routes/authenticateOtp"));
+app.use("/api/", require("./routes/cart"));

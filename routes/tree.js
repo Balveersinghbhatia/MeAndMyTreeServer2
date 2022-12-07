@@ -1,7 +1,8 @@
+// Importing express module
 const express = require("express");
 const db = require("../db");
 const router = express.Router();
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, check } = require("express-validator");
 const checkAuthentication = require("../middleware/checkSession");
 
 // Post request: Add Tree Record
@@ -14,6 +15,7 @@ router.post(
   checkAuthentication,
   (req, res) => {
     const { t_type: type, t_price: price } = req.body;
+    console.log("Tree api");
     console.log(req.body);
 
     let success = 0;

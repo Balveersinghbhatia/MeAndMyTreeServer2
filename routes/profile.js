@@ -3,7 +3,7 @@ const express = require("express");
 const db = require("../db");
 const router = express.Router();
 const { body, validationResult, check } = require("express-validator");
-const checkAuthentication = require("../middleware/checkSession");
+// const checkAuthentication = require("../middleware/checkSession");
 
 // Add profile : Adding the customer
 router.post(
@@ -15,10 +15,11 @@ router.post(
       .notEmpty()
       .isLength({ min: 10, max: 10 }),
   ],
-  checkAuthentication,
+  // checkAuthentication,
   (req, res) => {
     const { c_name: name, c_add: address, c_dob: dob, c_mob: mob } = req.body;
-
+    console.log("Profile api");
+    console.log(req.body);
     let success = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
     const errors = validationResult(req);
@@ -55,7 +56,7 @@ router.post(
   }
 );
 // View profile : View the customer's profile
-router.get("/profile/:id", checkAuthentication, (req, res) => {
+router.get("/profile/:id", (req, res) => {
   let success = 0;
   try {
     db.query(
@@ -89,7 +90,7 @@ router.get("/profile/:id", checkAuthentication, (req, res) => {
 // Update profile : Update the customer's profile
 router.put(
   "/profile/:id",
-  checkAuthentication,
+  // checkAuthentication,
   [
     body("c_name", "Invalid Customer Name").notEmpty().isLength({ min: 5 }),
     body("c_add", "Invalid Customer address").notEmpty().isLength({ min: 10 }),

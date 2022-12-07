@@ -19,7 +19,7 @@ router.post(
 
   (req, res) => {
     const { username, password, email } = req.body;
-    console.log("Body is");
+    console.log("Register Api");
     console.log(req.body);
 
     let success = 0;
@@ -59,7 +59,7 @@ router.post(
                       msg: "User created successfully",
                     });
                   } else {
-                    return res.success(400).json({ success, err });
+                    return res.success(200).json({ success, err });
                   }
                 }
               );
@@ -74,6 +74,7 @@ router.post(
       );
     } catch (error) {
       res.success(500).json({
+        success,
         msg: "Internal Server Error",
         error: error.message,
       });
@@ -91,7 +92,8 @@ router.post(
     }),
   ],
   async (req, res) => {
-    console.log(req.body);
+    // console.log("Login Api");
+    // console.log(req.body);
 
     let success = false;
     // Finds the validation errors in this request and wraps them in an object with handy functions
@@ -114,7 +116,7 @@ router.post(
               res.json({ success, msg: "User not found", notfound: true });
             } else {
               user = row[0];
-              // console.log(user);/
+              console.log(user);
               // console.log(password);
               // if user exists, check for password match
               const passwordCompare = await bcrypt.compare(
@@ -128,8 +130,9 @@ router.post(
                   error: "Please login with correct crendentials -p",
                 });
               } else {
-                req.session.isAuth = true;
                 // res.send(user);
+                req.session.isAuth = true;
+                req.session.user_id = user.user_id;
                 success = true;
                 res.json({ success, msg: "User Logged In" });
               }

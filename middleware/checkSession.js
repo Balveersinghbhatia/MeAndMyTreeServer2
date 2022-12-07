@@ -9,9 +9,9 @@ const checkAuthentication = (req, res, next) => {
     Call the next middleware in the stack.  */
 
   // This will be used to check if user is authenticated by checking if session is there in the request
-
+  console.log(req.session.id);
   try {
-    if (req.session.isAuth) {
+    if (req.session.isAuth || req.cookie.isAuth) {
       next();
     } else {
       res.status(401).send({

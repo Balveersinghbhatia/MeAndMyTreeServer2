@@ -17,7 +17,8 @@ router.post(
   (req, res) => {
     const { l_address, l_size, l_longitude, l_latitude, l_name, l_ownership } =
       req.body;
-
+    console.log("Location Api");
+    console.log(req.body);
     let status = 0;
     // if there is any errror in req body ie that if parameters are not validated response with bad request
     const errors = validationResult(req);

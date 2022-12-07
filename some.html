@@ -10,6 +10,7 @@
 
 <body>
 	<button id="btn">Login</button>
+	<button id="btn1">Add Tree</button>
 	<script>
 		let dosomething = async () => {
 			let options = {
@@ -18,18 +19,41 @@
 					username: "rudri",
 					password: "balveer123",
 				}),
+				// mode: 'no-cors',
+				headers: {
+					"Content-Type": "application/json"
+				},
+
+			}
+			// let x = await fetch('http://localhost:5000/api/login', options)
+			// await fetch('http://localhost:5000/api/login', options)
+			// 	.then((response) => response.json())
+			// 	.then((data) => console.log(data, typeof data));
+			fetch('https://meandmytree.herokuapp.com/api/login', options)
+				.then((response) => response.json())
+				.then((data) => console.log(data, typeof data));
+		}
+		let dosomething1 = async () => {
+			let options = {
+				method: "POST",
+				body: JSON.stringify({
+					t_type: "neem ka pata",
+					t_price: 799,
+				}),
 				headers: {
 					"Content-Type": "application/json"
 				}
 
 			}
-			// let x = await fetch('http://localhost:5000/api/login', options)
-			fetch('http://localhost:5000/api/login', options)
+			// fetch('https://meandmytree.herokuapp.com/api/tree', options)
+			let x = await fetch('http://localhost:5000/api/tree', options)
 				.then((response) => response.json())
 				.then((data) => console.log(data, typeof data));
 		}
 		let btn = document.getElementById('btn')
+		let btn1 = document.getElementById('btn1')
 		btn.addEventListener("click", dosomething)
+		btn1.addEventListener("click", dosomething1)
 	</script>
 </body>
 
