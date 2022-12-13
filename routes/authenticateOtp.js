@@ -45,25 +45,25 @@ router.post(
         .digest("hex");
 
       const fullHash = `${hash}.${expires}`;
-      // success = 1;
-      // client.messages
-      //   .create({
-      //     body: `Your one time login password for meandmytree is ${otp}`,
-      //     from: +18087365766,
-      //     to: phone,
-      //   })
-      //   .then((msg) => {
-      //     console.log("Otp sent success");
-      //     success = 1;
-      //   })
-      //   .catch((err) => {
-      //     return res.status(400).json({
-      //       success,
-      //       msg: "OTP didn't sent",
-      //       error: err,
-      //     });
-      //   });
-      // creating a entry for this number as user
+      success = 1;
+      client.messages
+        .create({
+          body: `Your one time login password for meandmytree is ${otp}`,
+          from: +18087365766,
+          to: phone,
+        })
+        .then((msg) => {
+          console.log("Otp sent success");
+          success = 1;
+        })
+        .catch((err) => {
+          return res.status(400).json({
+            success,
+            msg: "OTP didn't sent",
+            error: err,
+          });
+        });
+      creating a entry for this number as user
       db.query(
         `select * from otp_login_master where phone_no ="${phone}"`,
         (err, row) => {
