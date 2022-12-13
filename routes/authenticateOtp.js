@@ -63,7 +63,7 @@ router.post(
             error: err,
           });
         });
-      creating a entry for this number as user
+      // creating a entry for this number as user
       db.query(
         `select * from otp_login_master where phone_no ="${phone}"`,
         (err, row) => {
