@@ -73,7 +73,9 @@ app.get("/", function (req, res) {
     });
   }
 });
-
+app.post("/test", (req, res) => {
+  res.send(req.body);
+});
 app.listen(port, function () {
   console.log("Started application on port %d", port);
 });
