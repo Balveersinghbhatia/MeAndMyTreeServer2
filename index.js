@@ -9,7 +9,7 @@ const app = express();
 const MySQLStore = require("express-mysql-session")(session);
 
 app.use(cors());
-// app.use(express.json());
+app.use(express.json());
 app.use(cookieParser());
 // app.use(express.urlencoded());
 // To save the session in database
