@@ -15,8 +15,9 @@ router.post(
     body("item_total_price", "Invalid item total price").notEmpty(),
     body("remarks", "Invalid remarks"),
   ],
-  checkAuthentication,
+  // checkAuthentication,
   (req, res) => {
+    console.log(req.body);
     let success = 0;
     const { item_id, item_qty, item_price, item_total_price } = req.body;
     let remarks = req.body.remarks;
