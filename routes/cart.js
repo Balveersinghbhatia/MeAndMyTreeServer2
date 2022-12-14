@@ -1,6 +1,6 @@
 const checkAuthentication = require("../middleware/checkSession");
 const { body, validationResult } = require("express-validator");
-const db = require("../db");
+const { pool } = require("../db");
 const express = require("express");
 const session = require("express-session");
 
@@ -220,32 +220,38 @@ router.get("/getcart/", checkAuthentication, (req, res) => {
   let success = 0;
   try {
     const user_id = req.session.user_id;
-    db.query(
-      `select cart_id from cart_master where user_id=${user_id}`,
-      (err, row) => {
-        if (!err) {
-          if (row.length === 0) {
-            res.json({ success, error: "No item in the cart" });
-          } else {
-            let cart_id = row[0].cart_id;
-            db.query(
-              `select * from cart_details where cart_id = ${cart_id}`,
-              (err, row) => {
-                if (!err) {
-                  console.log("query ran success");
-                  success = 1;
-                  res.json({ success, msg: row });
-                } else {
-                  res.json({ success, error: err });
-                }
+    pool.getConnection((err, conn) => {
+      if (!err) {
+        conn.query(
+          `select cart_id from cart_master where user_id=${user_id}`,
+          (err, row) => {
+            if (!err) {
+              if (row.length === 0) {
+                res.json({ success, error: "No item in the cart" });
+              } else {
+                let cart_id = row[0].cart_id;
+                conn.query(
+                  `select * from cart_details where cart_id = ${cart_id}`,
+                  (err, row) => {
+                    if (!err) {
+                      console.log("query ran success");
+                      success = 1;
+                      res.json({ success, msg: row });
+                    } else {
+                      res.json({ success, error: err });
+                    }
+                  }
+                );
               }
-            );
+            } else {
+              res.json({ success, error: err });
+            }
           }
-        } else {
-          res.json({ success, error: err });
-        }
+        );
+      } else {
+        return res.status(400).json({ success, err });
       }
-    );
+    });
   } catch (error) {
     // if some error occures in above code then do this.
     console.error(error.message);
