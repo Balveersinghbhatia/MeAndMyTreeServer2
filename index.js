@@ -74,6 +74,7 @@ app.get("/", function (req, res) {
   }
 });
 app.post("/test", (req, res) => {
+  console.log(req.body);
   res.send(req.body);
 });
 app.listen(port, function () {
