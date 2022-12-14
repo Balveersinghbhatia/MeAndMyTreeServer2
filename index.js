@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 const app = express();
 const MySQLStore = require("express-mysql-session")(session);
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 // app.use(express.urlencoded());
