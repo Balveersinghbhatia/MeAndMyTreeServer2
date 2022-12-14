@@ -1,11 +1,5 @@
 const mysql = require("mysql");
 
-// const db = mysql.createConnection({
-//   host: "localhost",
-//   user: "root",
-//   password: "",
-//   database: "treePlantation",
-// });
 const db = mysql.createConnection({
   host: "162.241.85.25",
   user: "maymojes_meandmytree",
@@ -13,4 +7,13 @@ const db = mysql.createConnection({
   database: "maymojes_meandmytree",
 });
 
-module.exports = db;
+const pool = mysql.createPool({
+  host: "162.241.85.25",
+  user: "maymojes_meandmytree",
+  password: "Te-jLMcyza]4",
+  database: "maymojes_meandmytree",
+});
+// module.exports.myConnection = myConnection;
+// module.exports.dbOptions = dbOptions;
+module.exports.pool = pool;
+module.exports.db = db;
