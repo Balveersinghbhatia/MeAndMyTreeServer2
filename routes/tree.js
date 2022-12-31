@@ -1,6 +1,6 @@
 // Importing express module
 const express = require("express");
-const db = require("../db");
+const { pool } = require("../db");
 const router = express.Router();
 const { body, validationResult, check } = require("express-validator");
 const checkAuthentication = require("../middleware/checkSession");
@@ -67,18 +67,24 @@ router.get("/:id", checkAuthentication, (req, res) => {
     } else {
       query = `select * from tree_master where t_id=${tree_id}`;
     }
-    db.query(query, (err, row, fields) => {
+    pool.getConnection((err, conn) => {
       if (!err) {
-        if (row.length === 0) {
-          return res.status(404).json({
-            success: success,
-            msg: "Tree record not found",
-          });
-        }
-        success = 1;
-        return res.json({
-          success: success,
-          details: row,
+        conn.query(query, (err, row) => {
+          if (!err) {
+            if (row.length === 0) {
+              return res.status(404).json({
+                success: success,
+                msg: "Tree record not found",
+              });
+            }
+            success = 1;
+            return res.json({
+              success: success,
+              details: row,
+            });
+          } else {
+            return res.status(400).json({ success, err });
+          }
         });
       } else {
         return res.status(400).json({ success, err });

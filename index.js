@@ -6,13 +6,14 @@ const cookieParser = require("cookie-parser");
 const { db, pool } = require("./db");
 const port = process.env.PORT || 5000;
 const app = express();
+const formData = require("express-form-data");
 const MySQLStore = require("express-mysql-session")(session);
 
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-// app.use(express.urlencoded());
-// To save the session in database
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(formData.parse()); // To save the session in database
 
 const sessionStore = new MySQLStore({
   expiration: 10800000,
